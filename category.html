@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Category</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-f7dqXpGOHy1R0An6msUx60LZWgFWmREIcyJRhvW3u7pY0Mp2/ItRnEOCYT+jUgJbGZWI2fIU6zR/e+R6Sx8RjA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1 id="page-title">Top Chart</h1>
+      <nav>
+        <div class="dropdown">
+          <button class="dropbtn">Categories</button>
+          <div class="dropdown-content">
+            <a href="category.html?sheet=KR%20Movie&type=movie">Korean Movies</a>
+            <a href="category.html?sheet=KR%20Drama&type=drama">Korean Dramas</a>
+            <a href="category.html?sheet=KR%20Music&type=music">Korean Music</a>
+            <a href="category.html?sheet=EN%20Movie&type=movie">English Movies</a>
+            <a href="category.html?sheet=EN%20Drama&type=drama">English Dramas</a>
+            <a href="category.html?sheet=EN%20Music&type=music">English Music</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <div id="list" class="list-container"></div>
+    </main>
+    <footer>
+      <p>&copy; 2025 Sejin’s Top Charts.</p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
