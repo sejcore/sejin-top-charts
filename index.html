@@ -15,37 +15,80 @@
       .card { background: rgba(23,23,23,.6); backdrop-filter: blur(6px); border: 1px solid #262626; border-radius: 1rem; }
       .rank { font-size: 1.7rem; font-weight: 900; color: #FFD54A; }
       .flag-icon { width: 16px; height: 12px; object-fit: cover; display: inline-block; vertical-align: middle; }
+      /* Splash styles */
+      #splash {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: url('images/splash-hacker.jpg') center/cover no-repeat;
+        z-index: 50; display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        text-align: center; padding: 2rem;
+      }
+      #splash h2 {
+        font-size: 1.25rem; max-width: 800px; color: white;
+        text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        margin-bottom: 2rem; line-height: 1.6;
+      }
+      #enterBtn {
+        background-color: #00f0ff; color: #000;
+        font-size: 1.5rem; font-weight: bold;
+        padding: 1rem 2rem; border-radius: 9999px;
+        box-shadow: 0 0 20px #00f0ff, 0 0 40px #00f0ff;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 20px #00f0ff, 0 0 40px #00f0ff; }
+        50% { box-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
+      }
     </style>
   </head>
   <body class="min-h-screen text-white">
-    <header class="max-w-6xl mx-auto px-4 py-8">
-      <h1 class="text-3xl md:text-4xl font-bold tracking-wide text-center">Sejin's Top Charts</h1>
-      <div class="mt-6 flex items-center justify-center gap-3">
-        <label for="tabSelect" class="sr-only">Select chart</label>
-        <select id="tabSelect" class="bg-neutral-900 text-white px-4 py-2 rounded-xl border border-neutral-800 outline-none">
-          <option value="KR Movie">Korean Movies</option>
-          <option value="KR Drama" selected>Korean Dramas</option>
-          <option value="KR Music">Korean Music</option>
-          <option value="EN Movie">American Movies</option>
-          <option value="EN Drama">American Dramas</option>
-          <option value="EN Music">American Music</option>
-        </select>
-        <span id="currentLabel" class="inline-flex items-center gap-2 bg-neutral-900/70 border border-neutral-800 rounded-xl px-3 py-1 text-sm text-neutral-300">
-          <img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Korean Dramas
-        </span>
-      </div>
-    </header>
+    <!-- Splash Screen -->
+    <div id="splash">
+      <h2>
+        This site represents Sejin's personal opinions on various music, movies, and dramas from Korea and the United States.
+        The rankings, ratings, and comments are purely subjective, intended solely for entertainment purposes, and are in no way representative of any official authority, organization, or universal truth.
+        By continuing, you acknowledge that your enjoyment may vary, your favorites may differ, and you accept that Sejin has the final say in these lists.
+        If you disagree, remember: it’s all just for fun. Relax, grab some popcorn, and enjoy exploring Sejin’s Top Charts.
+      </h2>
+      <button id="enterBtn">ENTER</button>
+    </div>
 
-    <main class="max-w-6xl mx-auto px-4 pb-16">
-      <div id="grid" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
-      <div id="status" class="text-center text-neutral-400 mt-10"></div>
-    </main>
+    <!-- Main Content -->
+    <div id="mainContent" style="display:none;">
+      <header class="max-w-6xl mx-auto px-4 py-8">
+        <h1 class="text-3xl md:text-4xl font-bold tracking-wide text-center">Sejin's Top Charts</h1>
+        <div class="mt-6 flex items-center justify-center gap-3">
+          <label for="tabSelect" class="sr-only">Select chart</label>
+          <select id="tabSelect" class="bg-neutral-900 text-white px-4 py-2 rounded-xl border border-neutral-800 outline-none">
+            <option value="KR Movie">Korean Movies</option>
+            <option value="KR Drama" selected>Korean Dramas</option>
+            <option value="KR Music">Korean Music</option>
+            <option value="EN Movie">American Movies</option>
+            <option value="EN Drama">American Dramas</option>
+            <option value="EN Music">American Music</option>
+          </select>
+          <span id="currentLabel" class="inline-flex items-center gap-2 bg-neutral-900/70 border border-neutral-800 rounded-xl px-3 py-1 text-sm text-neutral-300">
+            <img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Korean Dramas
+          </span>
+        </div>
+      </header>
 
-    <footer class="text-center text-xs text-neutral-500 pb-10">
-      Images are read from <code>/images/</code>. Filenames should match those listed in your data source.
-    </footer>
+      <main class="max-w-6xl mx-auto px-4 pb-16">
+        <div id="grid" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
+        <div id="status" class="text-center text-neutral-400 mt-10"></div>
+      </main>
+
+      <footer class="text-center text-xs text-neutral-500 pb-10">
+        Images are read from <code>/images/</code>. Filenames should match those listed in your data source.
+      </footer>
+    </div>
 
     <script>
+      document.getElementById('enterBtn').addEventListener('click', () => {
+        document.getElementById('splash').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      });
+
       const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
       const API_KEY  = 'AIzaSyAnYfAfgCELD3iP9NCJMbCoJOCAbEyeUz0';
       const IMG_DIR  = 'images/';
@@ -78,19 +121,13 @@
         `;
       }
 
-      // Build a list of candidate URLs for a filename with different extensions/casing
       function buildSrcCandidates(filename) {
         const safeName = (filename || '').trim();
         if (!safeName) return [];
         const enc = s => IMG_DIR + encodeURI(s);
-
-        // Split base + ext
         const m = safeName.match(/^(.*)\.([a-zA-Z0-9]+)$/);
         if (!m) return [enc(safeName)];
-
-        const base = m[1];
-        const ext  = m[2];
-
+        const base = m[1], ext = m[2];
         const variantsByExt = {
           png:  ['png','PNG','jpg','JPG','jpeg','JPEG'],
           PNG:  ['PNG','png','JPG','jpg','JPEG','jpeg'],
@@ -99,12 +136,10 @@
           jpeg: ['jpeg','JPEG','jpg','JPG','png','PNG'],
           JPEG: ['JPEG','jpeg','JPG','jpg','PNG','png'],
         };
-
         const list = variantsByExt[ext] || [ext];
         return list.map(e => enc(`${base}.${e}`));
       }
 
-      // Global error handler that cycles through candidates, then falls back to placeholder
       function handleImgErr(img) {
         const nextIndex = parseInt(img.dataset.errIndex || '0', 10) + 1;
         const candidates = (img.dataset.candidates || '').split('|').filter(Boolean);
