@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Sejin's Top Charts — KR Drama</title>
+    <title>Sejin's Top Charts</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       :root { color-scheme: dark; }
@@ -13,28 +13,59 @@
       .stars .fg { color: #FFD54A; position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; }
       .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 0.75rem; border:1px solid #262626; }
       .card { background: rgba(23,23,23,.6); backdrop-filter: blur(6px); border: 1px solid #262626; border-radius: 1rem; }
-      .rank { font-size: 1.5rem; font-weight: 900; color: #FFD54A; }
+      .rank { font-size: 1.7rem; font-weight: 900; color: #FFD54A; }
+      .pill { @apply inline-flex items-center gap-2 bg-neutral-900/70 border border-neutral-800 rounded-xl px-3 py-1; }
     </style>
   </head>
   <body class="min-h-screen text-white">
     <header class="max-w-6xl mx-auto px-4 py-8">
       <h1 class="text-3xl md:text-4xl font-bold tracking-wide text-center">Sejin's Top Charts</h1>
-      <p class="text-center text-neutral-400 mt-2">🇰🇷 KR Drama — live from Google Sheets</p>
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <label for="tabSelect" class="sr-only">Select chart</label>
+        <select id="tabSelect" class="bg-neutral-900 text-white px-4 py-2 rounded-xl border border-neutral-800 outline-none">
+          <option value="KR Movie">🇰🇷 Korean Movies</option>
+          <option value="KR Drama" selected>🇰🇷 Korean Dramas</option>
+          <option value="KR Music">🇰🇷 Korean Music</option>
+          <option value="EN Movie">🇺🇸 American Movies</option>
+          <option value="EN Drama">🇺🇸 American Dramas</option>
+          <option value="EN Music">🇺🇸 American Music</option>
+        </select>
+        <span id="currentLabel" class="pill text-sm text-neutral-300">🇰🇷 KR Drama</span>
+      </div>
     </header>
+
     <main class="max-w-6xl mx-auto px-4 pb-16">
       <div id="grid" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
       <div id="status" class="text-center text-neutral-400 mt-10"></div>
     </main>
+
     <footer class="text-center text-xs text-neutral-500 pb-10">
-      Images are read from <code>/images/</code>. Filenames come from Column F (KR Drama tab).
+      Images are read from <code>/images/</code>. Filenames should match those listed in your data source.
     </footer>
+
     <script>
+      // ==== Config ====
       const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
       const API_KEY  = 'AIzaSyAnYfAfgCELD3iP9NCJMbCoJOCAbEyeUz0';
-      const TAB_NAME = 'KR Drama';
       const IMG_DIR  = 'images/';
       const PLACEHOLDER = IMG_DIR + 'placeholder.png';
 
+      const TABS = [
+        { key: 'KR Movie', label: '🇰🇷 KR Movie' },
+        { key: 'KR Drama', label: '🇰🇷 KR Drama' },
+        { key: 'KR Music', label: '🇰🇷 KR Music' },
+        { key: 'EN Movie', label: '🇺🇸 EN Movie' },
+        { key: 'EN Drama', label: '🇺🇸 EN Drama' },
+        { key: 'EN Music', label: '🇺🇸 EN Music' },
+      ];
+
+      // ==== UI refs ====
+      const statusEl = document.getElementById('status');
+      const gridEl = document.getElementById('grid');
+      const tabSelect = document.getElementById('tabSelect');
+      const currentLabel = document.getElementById('currentLabel');
+
+      // ==== Helpers ====
       function starHTML(value) {
         const clamped = Math.max(0, Math.min(5, Number(value) || 0));
         const pct = (clamped / 5) * 100;
@@ -85,14 +116,13 @@
         `;
       }
 
-      async function loadKRDrama() {
-        const statusEl = document.getElementById('status');
-        const gridEl = document.getElementById('grid');
+      async function loadTab(tabName) {
         statusEl.textContent = 'Loading…';
+        gridEl.innerHTML = '';
         try {
-          const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/'${encodeURIComponent(TAB_NAME)}'?key=${API_KEY}`;
+          const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/'${encodeURIComponent(tabName)}'?key=${API_KEY}`;
           const res = await fetch(url);
-          if (!res.ok) throw new Error('Sheets API ' + res.status);
+          if (!res.ok) throw new Error('Data fetch ' + res.status);
           const json = await res.json();
           const rows = json.values || [];
           if (rows.length < 2) { statusEl.textContent = 'No data found.'; return; }
@@ -109,11 +139,20 @@
           statusEl.textContent = '';
         } catch (err) {
           console.error(err);
-          statusEl.innerHTML = `<span class="text-red-400">Failed to load. Check Sheet sharing, API key, and tab name.</span>`;
+          statusEl.innerHTML = `<span class="text-red-400">Failed to load. Check sharing, key, and tab name.</span>`;
         }
       }
 
-      loadKRDrama();
+      // Init
+      tabSelect.addEventListener('change', () => {
+        const tabName = tabSelect.value;
+        const meta = TABS.find(t => t.key === tabName);
+        currentLabel.textContent = (meta ? meta.label : tabName);
+        loadTab(tabName);
+      });
+
+      // Default: KR Drama
+      loadTab('KR Drama');
     </script>
   </body>
 </html>
