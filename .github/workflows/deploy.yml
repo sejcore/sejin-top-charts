@@ -21,19 +21,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: Show versions (debug)
-        run: |
-          node -v
-          npm -v
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install deps
+        run: npm install   # (use install, not ci, since no lockfile yet)
 
       - name: Build
         run: npm run build
