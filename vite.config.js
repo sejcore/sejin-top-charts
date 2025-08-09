@@ -1,2 +1,7 @@
 import { defineConfig } from 'vite';
-export default defineConfig({ base: '/sejin-top-charts/' });
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  base: '/sejin-top-charts/',  // repo name
+});
