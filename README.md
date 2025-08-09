@@ -1,4 +1,4 @@
-# Sejin's Top Charts
+# Sejin's Top Charts!
 
 A minimalist, black-background site that shows your top Movies, Dramas, and Music in a swipeable carousel. Data loads live from your Google Sheet.
 
