@@ -15,7 +15,6 @@
       .card { background: rgba(23,23,23,.6); backdrop-filter: blur(6px); border: 1px solid #262626; border-radius: 1rem; }
       .rank { font-size: 1.7rem; font-weight: 900; color: #FFD54A; }
       .flag-icon { width: 16px; height: 12px; object-fit: cover; display: inline-block; vertical-align: middle; }
-      .pill { @apply inline-flex items-center gap-2 bg-neutral-900/70 border border-neutral-800 rounded-xl px-3 py-1; }
     </style>
   </head>
   <body class="min-h-screen text-white">
@@ -31,124 +30,158 @@
           <option value="EN Drama">American Dramas</option>
           <option value="EN Music">American Music</option>
         </select>
-        <span id="currentLabel" class="pill text-sm text-neutral-300"><img src="images/kr-flag.png" alt="KR" class="flag-icon"/> KR Drama</span>
+        <span id="currentLabel" class="inline-flex items-center gap-2 bg-neutral-900/70 border border-neutral-800 rounded-xl px-3 py-1 text-sm text-neutral-300">
+          <img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Korean Dramas
+        </span>
       </div>
     </header>
 
-   <main class="max-w-6xl mx-auto px-4 pb-16">
-  <div id="grid" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
-  <div id="status" class="text-center text-neutral-400 mt-10"></div>
-</main>
+    <main class="max-w-6xl mx-auto px-4 pb-16">
+      <div id="grid" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
+      <div id="status" class="text-center text-neutral-400 mt-10"></div>
+    </main>
 
-<footer class="text-center text-xs text-neutral-500 pb-10">
-  Images are read from <code>/images/</code>. Filenames should match those listed in your data source.
-</footer>
+    <footer class="text-center text-xs text-neutral-500 pb-10">
+      Images are read from <code>/images/</code>. Filenames should match those listed in your data source.
+    </footer>
 
-<script>
-  const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
-  const API_KEY  = 'AIzaSyAnYfAfgCELD3iP9NCJMbCoJOCAbEyeUz0';
-  const IMG_DIR  = 'images/';
-  const PLACEHOLDER = IMG_DIR + 'placeholder.png';
+    <script>
+      const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
+      const API_KEY  = 'AIzaSyAnYfAfgCELD3iP9NCJMbCoJOCAbEyeUz0';
+      const IMG_DIR  = 'images/';
+      const PLACEHOLDER = IMG_DIR + 'placeholder.png';
 
-  const TABS = [
-    { key: 'KR Movie', label: '<img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Movies' },
-    { key: 'KR Drama', label: '<img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Dramas' },
-    { key: 'KR Music', label: '<img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Music' },
-    { key: 'EN Movie', label: '<img src="images/us-flag.png" alt="EN" class="flag-icon"/> Movies' },
-    { key: 'EN Drama', label: '<img src="images/us-flag.png" alt="EN" class="flag-icon"/> Dramas' },
-    { key: 'EN Music', label: '<img src="images/us-flag.png" alt="EN" class="flag-icon"/> Music' },
-  ];
+      const TABS = [
+        { key: 'KR Movie', label: '<img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Movies' },
+        { key: 'KR Drama', label: '<img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Dramas' },
+        { key: 'KR Music', label: '<img src="images/kr-flag.png" alt="KR" class="flag-icon"/> Music' },
+        { key: 'EN Movie', label: '<img src="images/us-flag.png" alt="EN" class="flag-icon"/> Movies' },
+        { key: 'EN Drama', label: '<img src="images/us-flag.png" alt="EN" class="flag-icon"/> Dramas' },
+        { key: 'EN Music', label: '<img src="images/us-flag.png" alt="EN" class="flag-icon"/> Music' },
+      ];
 
-  const statusEl = document.getElementById('status');
-  const gridEl = document.getElementById('grid');
-  const tabSelect = document.getElementById('tabSelect');
-  const currentLabel = document.getElementById('currentLabel');
+      const statusEl = document.getElementById('status');
+      const gridEl = document.getElementById('grid');
+      const tabSelect = document.getElementById('tabSelect');
+      const currentLabel = document.getElementById('currentLabel');
 
-  function starHTML(value) {
-    const clamped = Math.max(0, Math.min(5, Number(value) || 0));
-    const pct = (clamped / 5) * 100;
-    const stars = '★★★★★';
-    return `
-      <span class="stars" aria-label="Rating ${clamped} of 5">
-        <span class="bg">${stars}</span>
-        <span class="fg" style="width:${pct}%">${stars}</span>
-      </span>
-      <span class="text-neutral-400 text-xs ml-2">${clamped.toFixed(1)}</span>
-    `;
-  }
+      function starHTML(value) {
+        const clamped = Math.max(0, Math.min(5, Number(value) || 0));
+        const pct = (clamped / 5) * 100;
+        const stars = '★★★★★';
+        return `
+          <span class="stars" aria-label="Rating ${clamped} of 5">
+            <span class="bg">${stars}</span>
+            <span class="fg" style="width:${pct}%">${stars}</span>
+          </span>
+          <span class="text-neutral-400 text-xs ml-2">${clamped.toFixed(1)}</span>
+        `;
+      }
 
-  function imgTagWithFallback(filename, title) {
-    if (!filename) {
-      return `<img class="poster mb-3" src="${PLACEHOLDER}" alt="${title}"/>`;
-    }
-    const encoded = encodeURI(filename);
-    const primary = IMG_DIR + encoded;
-    let alt = null;
-    const m = filename.match(/^(.*)\.(png|PNG)$/);
-    if (m) {
-      const base = m[1];
-      const ext = m[2] === 'png' ? 'PNG' : 'png';
-      alt = IMG_DIR + encodeURI(`${base}.${ext}`);
-    }
-    const onerr = alt
-      ? `this.onerror=null; this.src='${alt}'; this.onerror=function(){ this.src='${PLACEHOLDER}'; };`
-      : `this.onerror=null; this.src='${PLACEHOLDER}';`;
-    return `<img class="poster mb-3" src="${primary}" alt="${title}" onerror="${onerr}"/>`;
-  }
+      // Build a list of candidate URLs for a filename with different extensions/casing
+      function buildSrcCandidates(filename) {
+        const safeName = (filename || '').trim();
+        if (!safeName) return [];
+        const enc = s => IMG_DIR + encodeURI(s);
 
-  function cardHTML(item) {
-    const title = item.title || 'Untitled';
-    const release = item.release || '';
-    const producer = item.producer || '';
-    return `
-      <article class="card p-3">
-        ${imgTagWithFallback(item.image, title)}
-        <div class="flex items-start justify-between">
-          <h3 class="text-base font-semibold leading-tight">${title}</h3>
-          <span class="rank">#${item.rank || ''}</span>
-        </div>
-        ${release ? `<div class="text-xs font-semibold text-neutral-300 mt-1">${release}</div>` : ''}
-        ${producer ? `<div class="text-xs font-semibold text-neutral-400">${producer}</div>` : ''}
-        <div class="mt-2">${starHTML(item.rating)}</div>
-      </article>
-    `;
-  }
+        // Split base + ext
+        const m = safeName.match(/^(.*)\.([a-zA-Z0-9]+)$/);
+        if (!m) return [enc(safeName)];
 
-  async function loadTab(tabName) {
-    statusEl.textContent = 'Loading…';
-    gridEl.innerHTML = '';
-    try {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/'${encodeURIComponent(tabName)}'?key=${API_KEY}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Data fetch ' + res.status);
-      const json = await res.json();
-      const rows = json.values || [];
-      if (rows.length < 2) { statusEl.textContent = 'No data found.'; return; }
-      const [, ...data] = rows;
-      const items = data.map((r, i) => ({
-        rank: r[0] ?? String(i+1),
-        title: r[1] ?? '',
-        release: r[2] ?? '',
-        producer: r[3] ?? '',
-        rating: parseFloat(r[4] ?? '0') || 0,
-        image: (r[5] || '').trim()
-      }));
-      gridEl.innerHTML = items.map(cardHTML).join('');
-      statusEl.textContent = '';
-    } catch (err) {
-      console.error(err);
-      statusEl.innerHTML = `<span class="text-red-400">Failed to load. Check sharing, key, and tab name.</span>`;
-    }
-  }
+        const base = m[1];
+        const ext  = m[2];
 
-  tabSelect.addEventListener('change', () => {
-    const tabName = tabSelect.value;
-    const meta = TABS.find(t => t.key === tabName);
-    currentLabel.innerHTML = (meta ? meta.label : tabName);
-    loadTab(tabName);
-  });
+        const variantsByExt = {
+          png:  ['png','PNG','jpg','JPG','jpeg','JPEG'],
+          PNG:  ['PNG','png','JPG','jpg','JPEG','jpeg'],
+          jpg:  ['jpg','JPG','png','PNG','jpeg','JPEG'],
+          JPG:  ['JPG','jpg','PNG','png','JPEG','jpeg'],
+          jpeg: ['jpeg','JPEG','jpg','JPG','png','PNG'],
+          JPEG: ['JPEG','jpeg','JPG','jpg','PNG','png'],
+        };
 
-  loadTab('KR Drama');
-</script>
+        const list = variantsByExt[ext] || [ext];
+        return list.map(e => enc(`${base}.${e}`));
+      }
+
+      // Global error handler that cycles through candidates, then falls back to placeholder
+      function handleImgErr(img) {
+        const nextIndex = parseInt(img.dataset.errIndex || '0', 10) + 1;
+        const candidates = (img.dataset.candidates || '').split('|').filter(Boolean);
+        if (nextIndex < candidates.length) {
+          img.dataset.errIndex = String(nextIndex);
+          img.src = candidates[nextIndex];
+        } else {
+          img.onerror = null;
+          img.src = PLACEHOLDER;
+        }
+      }
+
+      function imgTagWithFallback(filename, title) {
+        if (!filename) {
+          return `<img class="poster mb-3" src="${PLACEHOLDER}" alt="${title}"/>`;
+        }
+        const candidates = buildSrcCandidates(filename);
+        const primary = candidates[0] || PLACEHOLDER;
+        const dataAttr = candidates.length ? `data-candidates="${candidates.join('|')}" data-err-index="0"` : '';
+        const onerr = candidates.length ? 'onerror="handleImgErr(this)"' : '';
+        return `<img class="poster mb-3" src="${primary}" alt="${title}" ${dataAttr} ${onerr}/>`;
+      }
+
+      function cardHTML(item) {
+        const title = item.title || 'Untitled';
+        const release = item.release || '';
+        const producer = item.producer || '';
+        return `
+          <article class="card p-3">
+            ${imgTagWithFallback(item.image, title)}
+            <div class="flex items-start justify-between">
+              <h3 class="text-base font-semibold leading-tight">${title}</h3>
+              <span class="rank">#${item.rank || ''}</span>
+            </div>
+            ${release ? `<div class="text-xs font-semibold text-neutral-300 mt-1">${release}</div>` : ''}
+            ${producer ? `<div class="text-xs font-semibold text-neutral-400">${producer}</div>` : ''}
+            <div class="mt-2">${starHTML(item.rating)}</div>
+          </article>
+        `;
+      }
+
+      async function loadTab(tabName) {
+        statusEl.textContent = 'Loading…';
+        gridEl.innerHTML = '';
+        try {
+          const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/'${encodeURIComponent(tabName)}'?key=${API_KEY}`;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('Data fetch ' + res.status);
+          const json = await res.json();
+          const rows = json.values || [];
+          if (rows.length < 2) { statusEl.textContent = 'No data found.'; return; }
+          const [, ...data] = rows;
+          const items = data.map((r, i) => ({
+            rank: r[0] ?? String(i+1),
+            title: r[1] ?? '',
+            release: r[2] ?? '',
+            producer: r[3] ?? '',
+            rating: parseFloat(r[4] ?? '0') || 0,
+            image: (r[5] || '').trim()
+          }));
+          gridEl.innerHTML = items.map(cardHTML).join('');
+          statusEl.textContent = '';
+        } catch (err) {
+          console.error(err);
+          statusEl.innerHTML = `<span class="text-red-400">Failed to load. Check sharing, key, and tab name.</span>`;
+        }
+      }
+
+      tabSelect.addEventListener('change', () => {
+        const tabName = tabSelect.value;
+        const meta = TABS.find(t => t.key === tabName);
+        currentLabel.innerHTML = (meta ? meta.label : tabName);
+        loadTab(tabName);
+      });
+
+      // Default load
+      loadTab('KR Drama');
+    </script>
   </body>
 </html>
