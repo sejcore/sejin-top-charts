@@ -219,49 +219,49 @@
 
       /* ===== Binary "Matrix" rain background ===== */
       function startMatrix() {
-        const c = matrixCanvas;
-        const ctx = c.getContext('2d');
-        const color = '#00d9ff'; // electric blue
-        const fontBase = 16;
+  const c = matrixCanvas;
+  const ctx = c.getContext('2d');
+  const color = '#00d9ff'; // electric blue
+  const fontBase = 16;
 
-        function size() {
-          c.width = window.innerWidth;
-          c.height = window.innerHeight;
-          const cols = Math.floor(c.width / fontBase);
-          drops = new Array(cols).fill(0).map(() => Math.floor(Math.random() * c.height));
-        }
+  function size() {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    const cols = Math.floor(c.width / fontBase);
+    drops = new Array(cols).fill(0).map(() => Math.floor(Math.random() * c.height));
+  }
 
-        let drops = [];
-        size();
-        window.addEventListener('resize', size);
+  let drops = [];
+  size();
+  window.addEventListener('resize', size);
 
-        function draw() {
-          // Faint trailing
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-          ctx.fillRect(0, 0, c.width, c.height);
+  function draw() {
+    // black background with slight fade for trailing effect
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+    ctx.fillRect(0, 0, c.width, c.height);
 
-          ctx.fillStyle = color;
-          ctx.font = fontBase + 'px monospace';
-          for (let i = 0; i < drops.length; i++) {
-            const text = Math.random() > 0.5 ? '1' : '0';
-            const x = i * fontBase;
-            const y = drops[i] * fontBase;
+    ctx.fillStyle = color;
+    ctx.font = fontBase + 'px monospace';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 15; // stronger glow
 
-            // subtle glow
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 8;
-            ctx.fillText(text, x, y);
+    for (let i = 0; i < drops.length; i++) {
+      const text = Math.random() > 0.5 ? '1' : '0';
+      const x = i * fontBase;
+      const y = drops[i] * fontBase;
 
-            // reset drop
-            if (y > c.height && Math.random() > 0.975) {
-              drops[i] = 0;
-            }
-            drops[i]++;
-          }
-          requestAnimationFrame(draw);
-        }
-        draw();
+      ctx.fillText(text, x, y);
+
+      // Slow down the falling by moving in smaller steps
+      if (y > c.height && Math.random() > 0.975) {
+        drops[i] = 0;
       }
+      drops[i] += 0.35; // ↓ slower fall speed (original was 1)
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
 
       /* ===== Chart logic (unchanged) ===== */
       const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
