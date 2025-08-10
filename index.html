@@ -221,7 +221,13 @@
       function startMatrix() {
   const c = matrixCanvas;
   const ctx = c.getContext('2d');
-  const color = '#00d9ff'; // electric blue
+
+  // Electric blue color
+  const color = '#00d9ff';
+
+  // Matrix characters: katakana + alphanumerics
+  const matrixChars = 'アァイィウヴエェオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
   const fontBase = 16;
 
   function size() {
@@ -236,30 +242,32 @@
   window.addEventListener('resize', size);
 
   function draw() {
-    // black background with slight fade for trailing effect
+    // True black background with transparent overlay for trails
     ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.fillRect(0, 0, c.width, c.height);
 
     ctx.fillStyle = color;
     ctx.font = fontBase + 'px monospace';
     ctx.shadowColor = color;
-    ctx.shadowBlur = 15; // stronger glow
+    ctx.shadowBlur = 15; // glow intensity
 
     for (let i = 0; i < drops.length; i++) {
-      const text = Math.random() > 0.5 ? '1' : '0';
+      const char = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
       const x = i * fontBase;
       const y = drops[i] * fontBase;
 
-      ctx.fillText(text, x, y);
+      ctx.fillText(char, x, y);
 
-      // Slow down the falling by moving in smaller steps
+      // Reset drop randomly after it falls off screen
       if (y > c.height && Math.random() > 0.975) {
         drops[i] = 0;
       }
-      drops[i] += 0.35; // ↓ slower fall speed (original was 1)
+      drops[i] += 0.35; // slower speed
     }
+
     requestAnimationFrame(draw);
   }
+
   draw();
 }
 
