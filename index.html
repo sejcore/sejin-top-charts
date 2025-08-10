@@ -13,63 +13,41 @@
       .stars { position: relative; display: inline-block; font-size: 18px; letter-spacing: 2px; }
       .stars .bg { color: #3f3f46; }
       .stars .fg { color: #FFD700; position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; } /* gold stars */
-      .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 0.75rem; border:1px solid #262626; display:block; }
+      .poster { width: 100%; object-fit: cover; border-radius: 0.75rem; border:1px solid #262626; display:block; }
+      .poster-portrait { aspect-ratio: 2 / 3; }  /* movies & dramas */
+      .poster-square   { aspect-ratio: 1 / 1; }  /* music */
       .card { background: rgba(23,23,23,.6); backdrop-filter: blur(6px); border: 1px solid #262626; border-radius: 1rem; }
       .rank { font-size: 1.7rem; font-weight: 900; color: #FFD700; } /* gold rank */
       .flag-icon { width: 16px; height: 12px; object-fit: cover; display: inline-block; vertical-align: middle; }
 
-      /* Wrap posters so we can glitch them with pseudo elements */
+      /* Glitch per-poster */
       .poster-wrap { position: relative; }
       .poster-wrap.glitch img {
         animation: imgGlitch 180ms steps(2) 1;
         filter: hue-rotate(180deg) saturate(160%) contrast(1.05);
       }
       .poster-wrap.glitch::after,
-      .poster-wrap.glitch::before {
-        content:"";
-        position:absolute; inset:0; pointer-events:none;
-      }
-      /* Electric-blue scan slice */
+      .poster-wrap.glitch::before { content:""; position:absolute; inset:0; pointer-events:none; }
       .poster-wrap.glitch::after{
-        background:
-          linear-gradient(to right, rgba(0,217,255,.85), rgba(0,217,255,0) 40%);
-        mix-blend-mode: screen;
-        opacity:.75;
-        transform: translateY(-30%);
+        background: linear-gradient(to right, rgba(0,217,255,.85), rgba(0,217,255,0) 40%);
+        mix-blend-mode: screen; opacity:.75; transform: translateY(-30%);
         clip-path: polygon(0% 40%, 100% 42%, 100% 58%, 0% 56%);
-        animation: sliceGlitch 180ms ease-out 1;
-        border-radius: 0.75rem;
+        animation: sliceGlitch 180ms ease-out 1; border-radius: 0.75rem;
       }
-      /* Subtle scanline overlay */
       .poster-wrap.glitch::before{
-        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,
-                                    rgba(0,217,255,.25) 50%,
-                                    rgba(255,255,255,0) 100%);
-        mix-blend-mode: screen;
-        opacity:.35;
-        transform: translateY(-100%);
-        animation: scanSweep 220ms linear 1;
-        border-radius: 0.75rem;
+        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(0,217,255,.25) 50%, rgba(255,255,255,0) 100%);
+        mix-blend-mode: screen; opacity:.35; transform: translateY(-100%);
+        animation: scanSweep 220ms linear 1; border-radius: 0.75rem;
       }
-
       @keyframes imgGlitch {
-        0% { transform:none; }
-        20% { transform: translate(-3px,1px) skewX(-3deg); }
+        0% { transform:none; } 20% { transform: translate(-3px,1px) skewX(-3deg); }
         40% { transform: translate(3px,-1px) skewX(3deg); }
         60% { transform: translate(-2px,2px) skewX(-2deg); }
         80% { transform: translate(2px,-2px) skewX(2deg); }
         100% { transform:none; }
       }
-      @keyframes sliceGlitch {
-        0% { opacity:.0; transform: translateY(-50%); }
-        25% { opacity:.85; transform: translateY(5%); }
-        60% { opacity:.4; transform: translateY(50%); }
-        100% { opacity:0; transform: translateY(120%); }
-      }
-      @keyframes scanSweep {
-        from { transform: translateY(-110%); opacity:.25; }
-        to   { transform: translateY(110%); opacity:.0; }
-      }
+      @keyframes sliceGlitch { 0%{opacity:0;transform:translateY(-50%);}25%{opacity:.85;transform:translateY(5%);}60%{opacity:.4;transform:translateY(50%);}100%{opacity:0;transform:translateY(120%);} }
+      @keyframes scanSweep { from{transform:translateY(-110%);opacity:.25;} to{transform:translateY(110%);opacity:0;} }
 
       /* ===== Splash ===== */
       #splash {
@@ -82,22 +60,12 @@
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
                      Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
       }
-      #splash h1 {
-        font-size: 2.2rem; /* smaller */
-        text-shadow: 0 2px 12px rgba(0,0,0,.75);
-      }
+      #splash h1 { font-size: 2.2rem; text-shadow: 0 2px 12px rgba(0,0,0,.75); }
       #splash .disclaimer {
-        max-width: 48rem;
-        margin-top: 1.25rem;
-        line-height: 1.6;
-        color: rgba(243, 244, 246, .92);
-        background: rgba(0,0,0,.48);
-        border: 1px solid #1f2937;
-        border-radius: 1rem;
-        padding: 1.1rem 1rem;
-        backdrop-filter: blur(6px);
-        text-shadow: 0 0 10px rgba(0,0,0,.55);
-        font-size: 1rem;
+        max-width: 48rem; margin-top: 1.25rem; line-height: 1.6;
+        color: rgba(243, 244, 246, .92); background: rgba(0,0,0,.48);
+        border: 1px solid #1f2937; border-radius: 1rem; padding: 1.1rem 1rem;
+        backdrop-filter: blur(6px); text-shadow: 0 0 10px rgba(0,0,0,.55); font-size: 1rem;
       }
       @media (max-width: 480px) {
         #splash .disclaimer { font-size: .9rem; }
@@ -105,31 +73,20 @@
       }
       /* Electric blue ENTER */
       #enterBtn {
-        background-color: #00d9ff;
-        color: #001018;
-        font-size: 1.35rem;
-        font-weight: 800;
-        padding: .95rem 1.4rem;
-        border-radius: 9999px;
-        text-transform: uppercase;
-        box-shadow: 0 0 30px rgba(0,217,255,.8),
-                    0 0 90px rgba(0,217,255,.5),
-                    inset 0 0 10px rgba(255,255,255,.3);
+        background-color: #00d9ff; color: #001018; font-size: 1.35rem; font-weight: 800;
+        padding: .95rem 1.4rem; border-radius: 9999px; text-transform: uppercase;
+        box-shadow: 0 0 30px rgba(0,217,255,.8), 0 0 90px rgba(0,217,255,.5), inset 0 0 10px rgba(255,255,255,.3);
         transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
         border: 1px solid rgba(0,217,255,.35);
       }
       #enterBtn:hover {
         transform: translateY(-1px) scale(1.02);
-        box-shadow: 0 0 40px rgba(0,217,255,.95),
-                    0 0 120px rgba(0,217,255,.6),
-                    inset 0 0 14px rgba(255,255,255,.35);
+        box-shadow: 0 0 40px rgba(0,217,255,.95), 0 0 120px rgba(0,217,255,.6), inset 0 0 14px rgba(255,255,255,.35);
         filter: brightness(1.05);
       }
 
-      /* Glitch layers for splash (unchanged) */
-      #splash .glitch-layer,
-      #splash .glitch-scan,
-      #splash .glitch-flash { position: absolute; inset: 0; pointer-events: none; }
+      /* Splash glitch (unchanged) */
+      #splash .glitch-layer, #splash .glitch-scan, #splash .glitch-flash { position: absolute; inset: 0; pointer-events: none; }
       #splash .glitch-layer { background: var(--bg) center/cover no-repeat; mix-blend-mode: screen; opacity: 0; filter: saturate(120%) contrast(120%); }
       #splash .glitch-flash { background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, .22), transparent 60%); opacity: 0; }
       #splash.glitching .glitch-layer { animation: glitchShift 90ms steps(2) 0s 8 alternate, flicker 240ms linear 1; opacity: .55; }
@@ -214,7 +171,7 @@
         mainContent.style.display = 'block';
       });
 
-      /* ===== Google Sheets setup ===== */
+      /* ===== Google Sheets + Rendering ===== */
       const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
       const API_KEY  = 'AIzaSyAnYfAfgCELD3iP9NCJMbCoJOCAbEyeUz0';
       const IMG_DIR  = 'images/';
@@ -247,7 +204,6 @@
         `;
       }
 
-      // Build image candidates for extension/casing mismatches
       function buildSrcCandidates(filename) {
         const safeName = (filename || '').trim();
         if (!safeName) return [];
@@ -279,23 +235,24 @@
         }
       }
 
-      function imgTagWithFallback(filename, title) {
-        if (!filename) return `<img class="poster mb-3" src="${PLACEHOLDER}" alt="${title}"/>`;
+      // pass posterClass so we can switch aspect ratios by tab
+      function imgTagWithFallback(filename, title, posterClass) {
+        if (!filename) return `<img class="poster ${posterClass} mb-3" src="${PLACEHOLDER}" alt="${title}"/>`;
         const candidates = buildSrcCandidates(filename);
         const primary = candidates[0] || PLACEHOLDER;
         const dataAttr = candidates.length ? `data-candidates="${candidates.join('|')}" data-err-index="0"` : '';
         const onerr = candidates.length ? 'onerror="handleImgErr(this)"' : '';
-        return `<img class="poster mb-3" src="${primary}" alt="${title}" ${dataAttr} ${onerr}/>`;
+        return `<img class="poster ${posterClass} mb-3" src="${primary}" alt="${title}" ${dataAttr} ${onerr}/>`;
       }
 
-      function cardHTML(item) {
+      function cardHTML(item, posterClass) {
         const title = item.title || 'Untitled';
         const release = item.release || '';
         const producer = item.producer || '';
         return `
           <article class="card p-3">
             <div class="poster-wrap">
-              ${imgTagWithFallback(item.image, title)}
+              ${imgTagWithFallback(item.image, title, posterClass)}
             </div>
             <div class="flex items-start justify-between mt-3">
               <h3 class="text-base font-semibold leading-tight">${title}</h3>
@@ -308,14 +265,12 @@
         `;
       }
 
-      // Track timers so we can clear between tab switches
+      // glitch timers for per-image effect
       let glitchTimers = [];
-
       function clearGlitchTimers() {
         glitchTimers.forEach(t => clearTimeout(t));
         glitchTimers = [];
       }
-
       function scheduleImageGlitches() {
         clearGlitchTimers();
         const wraps = gridEl.querySelectorAll('.poster-wrap');
@@ -327,7 +282,7 @@
               setTimeout(() => {
                 wrap.classList.remove('glitch');
                 schedule();
-              }, 220); // slightly longer than animation
+              }, 220);
             }, wait);
             glitchTimers.push(t);
           };
@@ -335,10 +290,16 @@
         });
       }
 
+      // helper: choose aspect class by tab
+      function posterClassForTab(tabName) {
+        return (tabName.includes('Music')) ? 'poster-square' : 'poster-portrait';
+      }
+
       async function loadTab(tabName) {
         statusEl.textContent = 'Loading…';
         gridEl.innerHTML = '';
         clearGlitchTimers();
+
         try {
           const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/'${encodeURIComponent(tabName)}'?key=${API_KEY}`;
           const res = await fetch(url);
@@ -347,6 +308,7 @@
           const rows = json.values || [];
           if (rows.length < 2) { statusEl.textContent = 'No data found.'; return; }
           const [, ...data] = rows;
+          const posterClass = posterClassForTab(tabName);
           const items = data.map((r, i) => ({
             rank: r[0] ?? String(i+1),
             title: r[1] ?? '',
@@ -355,9 +317,9 @@
             rating: parseFloat(r[4] ?? '0') || 0,
             image: (r[5] || '').trim()
           }));
-          gridEl.innerHTML = items.map(cardHTML).join('');
+          gridEl.innerHTML = items.map(it => cardHTML(it, posterClass)).join('');
           statusEl.textContent = '';
-          scheduleImageGlitches(); // start per-image random glitches
+          scheduleImageGlitches();
         } catch (err) {
           console.error(err);
           statusEl.innerHTML = `<span class="text-red-400">Failed to load. Check sharing, key, and tab name.</span>`;
