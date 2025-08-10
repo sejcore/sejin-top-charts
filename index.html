@@ -12,10 +12,10 @@
       /* ===== Shared UI ===== */
       .stars { position: relative; display: inline-block; font-size: 18px; letter-spacing: 2px; }
       .stars .bg { color: #3f3f46; }
-      .stars .fg { color: #00d9ff; position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; }
+      .stars .fg { color: #FFD700; position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; } /* gold stars */
       .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 0.75rem; border:1px solid #262626; }
       .card { background: rgba(23,23,23,.6); backdrop-filter: blur(6px); border: 1px solid #262626; border-radius: 1rem; }
-      .rank { font-size: 1.7rem; font-weight: 900; color: #00d9ff; }
+      .rank { font-size: 1.7rem; font-weight: 900; color: #FFD700; } /* gold rank */
       .flag-icon { width: 16px; height: 12px; object-fit: cover; display: inline-block; vertical-align: middle; }
 
       /* ===== Splash ===== */
@@ -30,7 +30,7 @@
                      Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
       }
       #splash h1 {
-        font-size: 2.2rem; /* smaller title */
+        font-size: 2.2rem; /* smaller */
         text-shadow: 0 2px 12px rgba(0,0,0,.75);
       }
       #splash .disclaimer {
@@ -73,57 +73,26 @@
         filter: brightness(1.05);
       }
 
-      /* Glitch effect layers */
+      /* Glitch layers for splash */
       #splash .glitch-layer,
       #splash .glitch-scan,
-      #splash .glitch-flash {
-        position: absolute; inset: 0; pointer-events: none;
-      }
-      #splash .glitch-layer {
-        background: var(--bg) center/cover no-repeat;
-        mix-blend-mode: screen;
-        opacity: 0;
-        filter: saturate(120%) contrast(120%);
-      }
-      #splash .glitch-flash {
-        background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, .22), transparent 60%);
-        opacity: 0;
-      }
-      #splash.glitching .glitch-layer {
-        animation: glitchShift 90ms steps(2) 0s 8 alternate,
-                   flicker 240ms linear 1;
-        opacity: .55;
-      }
-      #splash.glitching .glitch-flash {
-        animation: flashPop 260ms ease-out 1;
-        opacity: .6;
-      }
+      #splash .glitch-flash { position: absolute; inset: 0; pointer-events: none; }
+      #splash .glitch-layer { background: var(--bg) center/cover no-repeat; mix-blend-mode: screen; opacity: 0; filter: saturate(120%) contrast(120%); }
+      #splash .glitch-flash { background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, .22), transparent 60%); opacity: 0; }
+      #splash.glitching .glitch-layer { animation: glitchShift 90ms steps(2) 0s 8 alternate, flicker 240ms linear 1; opacity: .55; }
+      #splash.glitching .glitch-flash { animation: flashPop 260ms ease-out 1; opacity: .6; }
       #splash .glitch-scan {
-        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,
-                                    rgba(255,255,255,0.08) 50%,
-                                    rgba(255,255,255,0) 100%);
-        transform: translateY(-100%);
-        opacity: 0;
-        mix-blend-mode: screen;
+        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+        transform: translateY(-100%); opacity: 0; mix-blend-mode: screen;
       }
-      #splash.glitching .glitch-scan {
-        animation: scan 380ms linear 1;
-        opacity: .35;
-      }
-      @keyframes glitchShift {
-        0%   { transform: translate(0,0) skewX(0deg); filter: hue-rotate(0deg) contrast(120%); }
-        25%  { transform: translate(-10px,2px) skewX(-3deg); }
-        50%  { transform: translate(10px,-2px) skewX(3deg); }
-        75%  { transform: translate(-6px,3px) skewX(-2deg); }
-        100% { transform: translate(0,0) skewX(0deg); filter: hue-rotate(-10deg) contrast(130%); }
-      }
+      #splash.glitching .glitch-scan { animation: scan 380ms linear 1; opacity: .35; }
+      @keyframes glitchShift { 0%{transform:translate(0,0) skewX(0);filter:hue-rotate(0) contrast(120%)}25%{transform:translate(-10px,2px) skewX(-3deg)}50%{transform:translate(10px,-2px) skewX(3deg)}75%{transform:translate(-6px,3px) skewX(-2deg)}100%{transform:translate(0,0) skewX(0);filter:hue-rotate(-10deg) contrast(130%)} }
       @keyframes flicker { 0%,100% { opacity: .35; } 40% { opacity: .6; } 60% { opacity: .2; } }
       @keyframes scan { from { transform: translateY(-100%);} to { transform: translateY(100%);} }
       @keyframes flashPop { 0%{opacity:0;} 30%{opacity:.7;} 100%{opacity:0;} }
 
-      /* ===== Matrix rain canvas ===== */
+      /* ===== Matrix rain canvas (behind charts) ===== */
       #matrixBg { position: fixed; inset: 0; z-index: 0; background:#000; }
-      /* Ensure main stays solid black (no tint) */
       #mainContent { position: relative; z-index: 1; background:#000; }
     </style>
   </head>
@@ -143,7 +112,7 @@
       <button id="enterBtn" class="mt-8">Enter</button>
     </section>
 
-    <!-- ===== MATRIX BACKGROUND ===== -->
+    <!-- ===== MATRIX BACKGROUND (hidden until enter) ===== -->
     <canvas id="matrixBg" style="display:none;"></canvas>
 
     <!-- ===== MAIN APP ===== -->
@@ -196,15 +165,15 @@
         splash.style.display = 'none';
         matrixCanvas.style.display = 'block';
         mainContent.style.display = 'block';
-        startMatrix();
+        startMatrix(); // show Matrix background behind charts
       });
 
-      /* ===== Movie-style Matrix rain (green) ===== */
+      /* ===== Movie-style Matrix rain (green) behind charts ===== */
       function startMatrix() {
         const c = matrixCanvas;
         const ctx = c.getContext('2d');
 
-        const color = '#00ff66'; // classic Matrix green
+        const color = '#00ff66'; // Matrix green
         const chars = 'アァイィウヴエェオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         const fontSize = 16;
 
@@ -220,7 +189,7 @@
         window.addEventListener('resize', size);
 
         function draw() {
-          // Solid black with a faint trail
+          // Solid black background with faint trail
           ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
           ctx.fillRect(0, 0, c.width, c.height);
 
@@ -236,9 +205,7 @@
 
             ctx.fillText(char, x, y);
 
-            if (y > c.height && Math.random() > 0.975) {
-              drops[i] = 0;
-            }
+            if (y > c.height && Math.random() > 0.975) drops[i] = 0;
             drops[i] += 0.35; // slower fall
           }
 
@@ -312,9 +279,7 @@
       }
 
       function imgTagWithFallback(filename, title) {
-        if (!filename) {
-          return `<img class="poster mb-3" src="${PLACEHOLDER}" alt="${title}"/>`;
-        }
+        if (!filename) return `<img class="poster mb-3" src="${PLACEHOLDER}" alt="${title}"/>`;
         const candidates = buildSrcCandidates(filename);
         const primary = candidates[0] || PLACEHOLDER;
         const dataAttr = candidates.length ? `data-candidates="${candidates.join('|')}" data-err-index="0"` : '';
