@@ -13,10 +13,63 @@
       .stars { position: relative; display: inline-block; font-size: 18px; letter-spacing: 2px; }
       .stars .bg { color: #3f3f46; }
       .stars .fg { color: #FFD700; position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; } /* gold stars */
-      .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 0.75rem; border:1px solid #262626; }
+      .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 0.75rem; border:1px solid #262626; display:block; }
       .card { background: rgba(23,23,23,.6); backdrop-filter: blur(6px); border: 1px solid #262626; border-radius: 1rem; }
       .rank { font-size: 1.7rem; font-weight: 900; color: #FFD700; } /* gold rank */
       .flag-icon { width: 16px; height: 12px; object-fit: cover; display: inline-block; vertical-align: middle; }
+
+      /* Wrap posters so we can glitch them with pseudo elements */
+      .poster-wrap { position: relative; }
+      .poster-wrap.glitch img {
+        animation: imgGlitch 180ms steps(2) 1;
+        filter: hue-rotate(180deg) saturate(160%) contrast(1.05);
+      }
+      .poster-wrap.glitch::after,
+      .poster-wrap.glitch::before {
+        content:"";
+        position:absolute; inset:0; pointer-events:none;
+      }
+      /* Electric-blue scan slice */
+      .poster-wrap.glitch::after{
+        background:
+          linear-gradient(to right, rgba(0,217,255,.85), rgba(0,217,255,0) 40%);
+        mix-blend-mode: screen;
+        opacity:.75;
+        transform: translateY(-30%);
+        clip-path: polygon(0% 40%, 100% 42%, 100% 58%, 0% 56%);
+        animation: sliceGlitch 180ms ease-out 1;
+        border-radius: 0.75rem;
+      }
+      /* Subtle scanline overlay */
+      .poster-wrap.glitch::before{
+        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,
+                                    rgba(0,217,255,.25) 50%,
+                                    rgba(255,255,255,0) 100%);
+        mix-blend-mode: screen;
+        opacity:.35;
+        transform: translateY(-100%);
+        animation: scanSweep 220ms linear 1;
+        border-radius: 0.75rem;
+      }
+
+      @keyframes imgGlitch {
+        0% { transform:none; }
+        20% { transform: translate(-3px,1px) skewX(-3deg); }
+        40% { transform: translate(3px,-1px) skewX(3deg); }
+        60% { transform: translate(-2px,2px) skewX(-2deg); }
+        80% { transform: translate(2px,-2px) skewX(2deg); }
+        100% { transform:none; }
+      }
+      @keyframes sliceGlitch {
+        0% { opacity:.0; transform: translateY(-50%); }
+        25% { opacity:.85; transform: translateY(5%); }
+        60% { opacity:.4; transform: translateY(50%); }
+        100% { opacity:0; transform: translateY(120%); }
+      }
+      @keyframes scanSweep {
+        from { transform: translateY(-110%); opacity:.25; }
+        to   { transform: translateY(110%); opacity:.0; }
+      }
 
       /* ===== Splash ===== */
       #splash {
@@ -73,7 +126,7 @@
         filter: brightness(1.05);
       }
 
-      /* Glitch layers for splash */
+      /* Glitch layers for splash (unchanged) */
       #splash .glitch-layer,
       #splash .glitch-scan,
       #splash .glitch-flash { position: absolute; inset: 0; pointer-events: none; }
@@ -91,25 +144,7 @@
       @keyframes scan { from { transform: translateY(-100%);} to { transform: translateY(100%);} }
       @keyframes flashPop { 0%{opacity:0;} 30%{opacity:.7;} 100%{opacity:0;} }
 
-      /* ===== Electric-blue page flicker (behind charts) ===== */
-      #blueFlicker {
-        position: fixed; inset: 0; z-index: 0;
-        background: radial-gradient(60% 40% at 50% 45%, rgba(0,217,255,0.20), rgba(0,217,255,0.06) 40%, rgba(0,0,0,0) 70%);
-        pointer-events: none;
-        opacity: 0; /* normally invisible */
-        mix-blend-mode: screen; /* brighten without tinting */
-      }
-      #blueFlicker.flick {
-        animation: blueBlink 260ms ease-out 1;
-      }
-      @keyframes blueBlink {
-        0%   { opacity: 0;   filter: blur(0px); }
-        20%  { opacity: .85; filter: blur(1px); }
-        60%  { opacity: .35; filter: blur(0px); }
-        100% { opacity: 0;   filter: blur(0px); }
-      }
-
-      /* Keep main content above flicker layer and on solid black */
+      /* Keep main content on solid black */
       #mainContent { position: relative; z-index: 1; background:#000; }
     </style>
   </head>
@@ -128,9 +163,6 @@
 
       <button id="enterBtn" class="mt-8">Enter</button>
     </section>
-
-    <!-- ===== ELECTRIC BLUE FLICKER LAYER (hidden until enter) ===== -->
-    <div id="blueFlicker" style="display:none;"></div>
 
     <!-- ===== MAIN APP ===== -->
     <div id="mainContent" style="display:none;">
@@ -163,7 +195,6 @@
       const splash = document.getElementById('splash');
       const enterBtn = document.getElementById('enterBtn');
       const mainContent = document.getElementById('mainContent');
-      const blueFlicker = document.getElementById('blueFlicker');
 
       function scheduleGlitch() {
         const wait = 1000 + Math.random() * 4000;
@@ -180,27 +211,10 @@
 
       enterBtn.addEventListener('click', () => {
         splash.style.display = 'none';
-        blueFlicker.style.display = 'block';
         mainContent.style.display = 'block';
-        scheduleBlueFlicker(); // start background flicker on charts page
       });
 
-      /* ===== Electric-blue background flicker behind charts ===== */
-      function scheduleBlueFlicker() {
-        const min = 2000;  // min delay between flickers
-        const max = 8000;  // max delay
-        const wait = Math.random() * (max - min) + min;
-        setTimeout(() => {
-          blueFlicker.classList.add('flick');
-          // remove class after animation ends so it can re-trigger
-          setTimeout(() => {
-            blueFlicker.classList.remove('flick');
-            scheduleBlueFlicker();
-          }, 320); // a bit longer than animation length
-        }, wait);
-      }
-
-      /* ===== Chart logic ===== */
+      /* ===== Google Sheets setup ===== */
       const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
       const API_KEY  = 'AIzaSyAnYfAfgCELD3iP9NCJMbCoJOCAbEyeUz0';
       const IMG_DIR  = 'images/';
@@ -280,8 +294,10 @@
         const producer = item.producer || '';
         return `
           <article class="card p-3">
-            ${imgTagWithFallback(item.image, title)}
-            <div class="flex items-start justify-between">
+            <div class="poster-wrap">
+              ${imgTagWithFallback(item.image, title)}
+            </div>
+            <div class="flex items-start justify-between mt-3">
               <h3 class="text-base font-semibold leading-tight">${title}</h3>
               <span class="rank">#${item.rank || ''}</span>
             </div>
@@ -292,9 +308,37 @@
         `;
       }
 
+      // Track timers so we can clear between tab switches
+      let glitchTimers = [];
+
+      function clearGlitchTimers() {
+        glitchTimers.forEach(t => clearTimeout(t));
+        glitchTimers = [];
+      }
+
+      function scheduleImageGlitches() {
+        clearGlitchTimers();
+        const wraps = gridEl.querySelectorAll('.poster-wrap');
+        wraps.forEach(wrap => {
+          const schedule = () => {
+            const wait = 2000 + Math.random()*6000; // 2-8s random
+            const t = setTimeout(() => {
+              wrap.classList.add('glitch');
+              setTimeout(() => {
+                wrap.classList.remove('glitch');
+                schedule();
+              }, 220); // slightly longer than animation
+            }, wait);
+            glitchTimers.push(t);
+          };
+          schedule();
+        });
+      }
+
       async function loadTab(tabName) {
         statusEl.textContent = 'Loading…';
         gridEl.innerHTML = '';
+        clearGlitchTimers();
         try {
           const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/'${encodeURIComponent(tabName)}'?key=${API_KEY}`;
           const res = await fetch(url);
@@ -313,6 +357,7 @@
           }));
           gridEl.innerHTML = items.map(cardHTML).join('');
           statusEl.textContent = '';
+          scheduleImageGlitches(); // start per-image random glitches
         } catch (err) {
           console.error(err);
           statusEl.innerHTML = `<span class="text-red-400">Failed to load. Check sharing, key, and tab name.</span>`;
