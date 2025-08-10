@@ -8,6 +8,8 @@
     <style>
       :root { color-scheme: dark; }
       body { background:#000; }
+
+      /* ========== Shared UI ========== */
       .stars { position: relative; display: inline-block; font-size: 18px; letter-spacing: 2px; }
       .stars .bg { color: #3f3f46; }
       .stars .fg { color: #FFD54A; position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; }
@@ -15,45 +17,126 @@
       .card { background: rgba(23,23,23,.6); backdrop-filter: blur(6px); border: 1px solid #262626; border-radius: 1rem; }
       .rank { font-size: 1.7rem; font-weight: 900; color: #FFD54A; }
       .flag-icon { width: 16px; height: 12px; object-fit: cover; display: inline-block; vertical-align: middle; }
-      /* Splash styles */
+
+      /* ========== Splash ========== */
       #splash {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: url('images/splash-hacker.jpg') center/cover no-repeat;
+        --bg:url('images/splash-hacker.jpg');
+        position: fixed; inset: 0; width: 100%; height: 100%;
+        background: #000 var(--bg) center/cover no-repeat;
         z-index: 50; display: flex; flex-direction: column;
         justify-content: center; align-items: center;
         text-align: center; padding: 2rem;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+                     Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
       }
-      #splash h2 {
-        font-size: 1.25rem; max-width: 800px; color: white;
-        text-shadow: 0 0 10px rgba(0,0,0,0.8);
-        margin-bottom: 2rem; line-height: 1.6;
+
+      /* Disclaimer box */
+      #splash .disclaimer {
+        max-width: 48rem; /* 768px */
+        margin-top: 1.25rem;
+        line-height: 1.6;
+        color: rgba(243, 244, 246, .92);
+        background: rgba(0,0,0,.45);
+        border: 1px solid #262626;
+        border-radius: 1rem;
+        padding: 1.15rem 1.1rem;
+        backdrop-filter: blur(6px);
+        text-shadow: 0 0 10px rgba(0,0,0,.55);
+        font-size: 1rem;
       }
+
+      /* Mobile: smaller splash text & button */
+      @media (max-width: 480px) {
+        #splash .disclaimer { font-size: .9rem; }
+        #enterBtn { font-size: 1.05rem; padding: .8rem 1.3rem; }
+      }
+
+      /* Enter button — neon blue glow */
       #enterBtn {
-        background-color: #00f0ff; color: #000;
-        font-size: 1.5rem; font-weight: bold;
-        padding: 1rem 2rem; border-radius: 9999px;
-        box-shadow: 0 0 20px #00f0ff, 0 0 40px #00f0ff;
-        animation: pulse 2s infinite;
+        background-color: #60a5fa; /* blue-400 */
+        color: #020617;
+        font-size: 1.35rem;
+        font-weight: 800;
+        padding: .95rem 1.4rem;
+        border-radius: 9999px;
+        text-transform: uppercase;
+        box-shadow: 0 0 22px rgba(96,165,250,.55),
+                    0 0 56px rgba(96,165,250,.35),
+                    inset 0 0 6px rgba(255,255,255,.25);
+        transition: transform .12s ease, box-shadow .2s ease;
       }
-      @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 20px #00f0ff, 0 0 40px #00f0ff; }
-        50% { box-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
+      #enterBtn:hover { transform: translateY(-1px) scale(1.01);
+        box-shadow: 0 0 30px rgba(96,165,250,.72), 0 0 80px rgba(96,165,250,.45), inset 0 0 10px rgba(255,255,255,.28); }
+      #enterBtn:active { transform: translateY(0) scale(.99); }
+
+      /* Glitch layers (use same background via CSS var) */
+      #splash .glitch-layer,
+      #splash .glitch-scan {
+        position: absolute; inset: 0; pointer-events: none;
+      }
+      #splash .glitch-layer {
+        background: var(--bg) center/cover no-repeat;
+        mix-blend-mode: screen;
+        opacity: 0;
+      }
+      #splash.glitching .glitch-layer {
+        animation: glitchShift 120ms steps(2) 0s 6 alternate,
+                   flicker 380ms linear 1;
+        opacity: .35;
+      }
+      /* Scanline sweep */
+      #splash .glitch-scan {
+        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,
+                                    rgba(255,255,255,0.05) 50%,
+                                    rgba(255,255,255,0) 100%);
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      #splash.glitching .glitch-scan {
+        animation: scan 420ms linear 1;
+        opacity: .25;
+      }
+
+      @keyframes glitchShift {
+        0%   { transform: translate(0,0) skewX(0deg); filter: hue-rotate(0deg) contrast(110%); }
+        25%  { transform: translate(-6px,1px) skewX(-2deg); }
+        50%  { transform: translate(6px,-1px) skewX(2deg); }
+        75%  { transform: translate(-3px,2px) skewX(-1deg); }
+        100% { transform: translate(0,0) skewX(0deg); filter: hue-rotate(-5deg) contrast(115%); }
+      }
+      @keyframes flicker {
+        0%,100% { opacity: .25; }
+        40%     { opacity: .45; }
+        60%     { opacity: .15; }
+      }
+      @keyframes scan {
+        from { transform: translateY(-100%); }
+        to   { transform: translateY(100%);  }
       }
     </style>
   </head>
   <body class="min-h-screen text-white">
-    <!-- Splash Screen -->
-    <div id="splash">
-      <h2>
-        This site represents Sejin's personal opinions on various music, movies, and dramas from Korea and the United States.
-        The rankings, ratings, and comments are purely subjective, intended solely for entertainment purposes, and are in no way representative of any official authority, organization, or universal truth.
-        By continuing, you acknowledge that your enjoyment may vary, your favorites may differ, and you accept that Sejin has the final say in these lists.
-        If you disagree, remember: it’s all just for fun. Relax, grab some popcorn, and enjoy exploring Sejin’s Top Charts.
-      </h2>
-      <button id="enterBtn">ENTER</button>
-    </div>
+    <!-- ========== SPLASH ========== -->
+    <section id="splash">
+      <!-- layered glitch effects -->
+      <div class="glitch-layer" aria-hidden="true"></div>
+      <div class="glitch-scan"  aria-hidden="true"></div>
 
-    <!-- Main Content -->
+      <h1 class="text-4xl md:text-5xl font-black tracking-wide drop-shadow-[0_2px_12px_rgba(0,0,0,.75)]">
+        Sejin's Top Charts
+      </h1>
+
+      <div class="disclaimer">
+        <p><strong>Extremely Long, Unnecessary Disclaimer.</strong> The following selections, rankings, ratings, opinions, preferences, impulses, whims, hunches, and vibes are solely those of Sejin. They are not the official positions of any studio, label, network, platform, distributor, algorithm, or snack brand. They must not be cited as medical, legal, culinary, romantic, investment, or life advice. Viewer discretion is advised, though probably unnecessary.</p>
+        <p>By proceeding, you acknowledge that taste is subjective; that a 4.7/5 today could be a 4.6/5 tomorrow after a rewatch, a mood swing, a better soundtrack, or a stronger espresso; that nostalgia may distort judgment in ways both delightful and irrational; and that ranking is an art, not a science, unless science starts handing out K-drama awards.</p>
+        <p>All titles, posters, and metadata are provided for personal enjoyment and casual debate only. Any resemblance to your own list—top ten, bottom five, or guilty pleasures—is either a coincidence or proof that you, too, have impeccable taste.</p>
+        <p>By entering, you waive the right to be annoyed if your favorite got fewer stars than expected, to demand a recount, or to insist the soundtrack “hits harder” in the live version. You further agree that plot twists may be spoiled by time, not by this page; that villains can be sympathetic; and that sometimes, the second lead deserved better. Thank you for attending this legally non-binding ceremony of opinions.</p>
+      </div>
+
+      <button id="enterBtn" class="mt-8">Enter</button>
+    </section>
+
+    <!-- ========== MAIN APP ========== -->
     <div id="mainContent" style="display:none;">
       <header class="max-w-6xl mx-auto px-4 py-8">
         <h1 class="text-3xl md:text-4xl font-bold tracking-wide text-center">Sejin's Top Charts</h1>
@@ -80,11 +163,30 @@
     </div>
 
     <script>
-      document.getElementById('enterBtn').addEventListener('click', () => {
-        document.getElementById('splash').style.display = 'none';
+      // ===== Splash interactions =====
+      const splash = document.getElementById('splash');
+      const enterBtn = document.getElementById('enterBtn');
+
+      // Random glitch scheduler
+      function scheduleGlitch() {
+        const wait = 1800 + Math.random() * 5200;       // random wait before next glitch
+        setTimeout(() => {
+          splash.classList.add('glitching');
+          const duration = 300 + Math.random() * 600;    // random glitch duration
+          setTimeout(() => {
+            splash.classList.remove('glitching');
+            scheduleGlitch();
+          }, duration);
+        }, wait);
+      }
+      scheduleGlitch();
+
+      enterBtn.addEventListener('click', () => {
+        splash.style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
       });
 
+      // ===== Chart logic (unchanged) =====
       const SHEET_ID = '1bUhsAN58vjTtDpRmbciDszWbgANzjuFDOyO48hH-Jwg';
       const API_KEY  = 'AIzaSyAnYfAfgCELD3iP9NCJMbCoJOCAbEyeUz0';
       const IMG_DIR  = 'images/';
@@ -162,7 +264,7 @@
       function cardHTML(item) {
         const title = item.title || 'Untitled';
         const release = item.release || '';
-        const producer = item.producer || '';
+               const producer = item.producer || '';
         return `
           <article class="card p-3">
             ${imgTagWithFallback(item.image, title)}
